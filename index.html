@@ -420,6 +420,13 @@
     .modal-copy-btn:hover { opacity: .8; }
     .modal-copy-btn.copied { background: #065f46; }
 
+    .modal-section-label {
+      font-size: .68rem; font-weight: 700;
+      color: var(--muted); letter-spacing: .08rem; text-transform: uppercase;
+      margin: 20px 0 10px; display: block;
+    }
+    .modal-section-label.premium { color: var(--neon); }
+
     /* ─── FOOTER ────────────────────────────────────────────────── */
     footer {
       position: relative; z-index: 1;
@@ -509,7 +516,6 @@
            data-title="[FPS] Um Toque"
            data-img="https://tr.rbxcdn.com/180DAY-90e95e7b086c305abc3f0e8079b28e54/768/432/Image/Webp/noFilter"
            data-features="Silent Aim;Auto Headshot;ESP Box;ESP Skeleton;No Recoil"
-           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
            data-status="online"
            data-play="https://www.roblox.com/pt/games/90568084448279/One-Tap">
         <div class="card-thumb-wrap">
@@ -538,7 +544,6 @@
            data-title="[FPS] Passeio"
            data-img="https://tr.rbxcdn.com/180DAY-6520033018c6162771a61aac035963ef/768/432/Image/Webp/noFilter"
            data-features="Aimbot;Triggerbot;ESP Distance;ESP Health;Speed Hack"
-           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
            data-status="online"
            data-play="https://www.roblox.com/pt/games/136801880565837/Flick">
         <div class="card-thumb-wrap">
@@ -567,7 +572,6 @@
            data-title="Arsenal"
            data-img="https://tr.rbxcdn.com/180DAY-b6a5183f24ba3121346cf7e274da12ec/768/432/Image/Webp/noFilter"
            data-features="Aimbot;FOV Circle;Smoothing;ESP Team Colors;Ally Checks"
-           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
            data-status="online"
            data-play="https://www.roblox.com/pt/games/286090429/Arsenal">
         <div class="card-thumb-wrap">
@@ -596,7 +600,6 @@
            data-title="Distrito da Violência"
            data-img="https://tr.rbxcdn.com/180DAY-ebde23d7fd4a7b83ba3bf6a3df91d131/512/512/Image/Webp/noFilter"
            data-features="Generator ESP;Crate ESP;Window ESP;Custom Highlights;Repair Progress"
-           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
            data-status="progress"
            data-play="https://www.roblox.com/pt/games/93978595733734/Violence-District">
         <div class="card-thumb-wrap">
@@ -624,7 +627,6 @@
            data-title="[UPD] Bola da Morte"
            data-img="https://tr.rbxcdn.com/180DAY-0ec094471a4413b54a2ed36a3fcf0c3e/768/432/Image/Webp/noFilter"
            data-features="Auto Parry;Parry All;Kill Aura;God Mode;Speed"
-           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
            data-status="dev"
            data-play="https://www.roblox.com/pt/games/15002061926/Death-Ball">
         <div class="card-thumb-wrap">
@@ -652,7 +654,6 @@
            data-title="[DUALES] Faca VS Arma"
            data-img="https://tr.rbxcdn.com/180DAY-019e3b22ec20f22ce89bcdbd2724884c/768/432/Image/Webp/noFilter"
            data-features="Aimbot;Silent Aim;ESP;Auto Farm;Kill Aura"
-           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
            data-status="dev"
            data-play="https://www.roblox.com/pt/games/120700541929930/Knife-VS-Gun">
         <div class="card-thumb-wrap">
@@ -697,9 +698,11 @@
       <div class="modal-body">
         <p class="modal-features-title">Features</p>
         <div class="modal-features" id="modal-features"></div>
+        
+        <span class="modal-section-label premium">✦ UNIVERSAL HUB SCRIPT (Copy Below)</span>
         <div class="modal-code-wrap">
-          <code class="modal-code" id="modal-code"></code>
-          <button class="modal-copy-btn" id="modal-copy">Copy</button>
+          <code class="modal-code">loadstring(game:HttpGet("https://raw.githubusercontent.com/lynxscriptHUB/lynxscriptshub/refs/heads/main/Loader.lua"))()</code>
+          <button class="modal-copy-btn" onclick="copyText(this, 'loadstring(game:HttpGet(\'https://raw.githubusercontent.com/lynxscriptHUB/lynxscriptshub/refs/heads/main/Loader.lua\'))()')">Copy Hub Script</button>
         </div>
       </div>
     </div>
@@ -711,15 +714,12 @@
     const modalImg  = document.getElementById('modal-img');
     const modalTitle= document.getElementById('modal-title');
     const modalFeat = document.getElementById('modal-features');
-    const modalCode = document.getElementById('modal-code');
-    const modalCopy = document.getElementById('modal-copy');
     const modalClose= document.getElementById('modal-close');
 
     function openModal(card) {
       const d = card.dataset;
       modalImg.src       = d.img;
       modalTitle.innerText = d.title;
-      modalCode.innerText  = d.script;
       modalFeat.innerHTML  = '';
       d.features.split(';').forEach(f => {
         const el = document.createElement('span');
@@ -744,16 +744,17 @@
     });
 
     // ── COPY ──────────────────────────────────────────────────
-    modalCopy.addEventListener('click', () => {
-      navigator.clipboard.writeText(modalCode.innerText).then(() => {
-        modalCopy.innerText = 'Copied!';
-        modalCopy.classList.add('copied');
+    function copyText(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied!';
+        btn.classList.add('copied');
         setTimeout(() => {
-          modalCopy.innerText = 'Copy';
-          modalCopy.classList.remove('copied');
+          btn.innerText = originalText;
+          btn.classList.remove('copied');
         }, 2000);
       });
-    });
+    }
 
     // ── REVEAL ON SCROLL ──────────────────────────────────────
     const obs = new IntersectionObserver(entries => {
