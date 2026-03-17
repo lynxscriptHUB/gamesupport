@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LynX HUB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── VARIABLES ─────────────────────────────────────────────── */
+    :root {
+      --bg:        #07030f;
+      --surface:   #0f0820;
+      --card:      #130b28;
+      --border:    #2d1a5e;
+      --purple:    #7c3aed;
+      --violet:    #a855f7;
+      --neon:      #c084fc;
+      --pink:      #e879f9;
+      --text:      #e2d9f3;
+      --muted:     #7c6fa0;
+      --online:    #34d399;
+      --progress:  #fbbf24;
+      --dev:       #f87171;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE OVERLAY ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: .35;
+    }
+
+    /* ─── AMBIENT GLOW ──────────────────────────────────────────── */
+    .ambient {
+      position: fixed; pointer-events: none; z-index: 0;
+      border-radius: 50%; filter: blur(120px);
+    }
+    .ambient-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #5b21b650 0%, transparent 70%);
+      top: -200px; left: -150px;
+    }
+    .ambient-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #7c3aed30 0%, transparent 70%);
+      bottom: 10%; right: -100px;
+    }
+    .ambient-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, #a855f720 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+    }
+
+    /* ─── NAV ───────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, #07030fdd, transparent);
+      backdrop-filter: blur(2px);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.4rem;
+      letter-spacing: 0.1em;
+      background: linear-gradient(135deg, #c084fc, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .logo span { opacity: .55; font-weight: 400; }
+
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a {
+      font-size: .85rem; font-weight: 500;
+      color: var(--muted); text-decoration: none;
+      letter-spacing: .06em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--neon); }
+
+    /* ─── HERO ──────────────────────────────────────────────────── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      overflow: hidden;
+    }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid #5b21b6;
+      padding: 6px 16px; border-radius: 99px;
+      font-size: .75rem; font-weight: 500;
+      color: var(--violet); letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 32px;
+      animation: fadeUp .6s ease both;
+    }
+    .hero-tag::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--online);
+      box-shadow: 0 0 8px var(--online);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.85); }
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3rem, 9vw, 7.5rem);
+      line-height: .92;
+      letter-spacing: -.02em;
+      animation: fadeUp .7s .1s ease both;
+    }
+
+    .hero-title .line1 { display: block; color: #fff; }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(90deg, var(--purple), var(--pink) 60%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-sub {
+      margin-top: 24px;
+      font-size: 1.05rem; color: var(--muted); max-width: 460px;
+      line-height: 1.6;
+      animation: fadeUp .7s .2s ease both;
+    }
+
+    .hero-cta {
+      margin-top: 40px;
+      display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp .7s .3s ease both;
+    }
+
+    .btn-primary {
+      padding: 14px 32px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--violet));
+      color: #fff; font-weight: 600; font-size: .95rem;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity .2s, transform .2s;
+      box-shadow: 0 0 32px #7c3aed55;
+    }
+    .btn-primary:hover { opacity: .85; transform: translateY(-2px); }
+
+    .btn-ghost {
+      padding: 14px 32px; border-radius: 10px;
+      border: 1px solid var(--border);
+      color: var(--muted); font-weight: 500; font-size: .95rem;
+      text-decoration: none; cursor: pointer;
+      background: transparent;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--violet); color: var(--violet); }
+
+    /* ─── DIVIDER ───────────────────────────────────────────────── */
+    .divider {
+      position: relative; z-index: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 0 40px;
+    }
+
+    /* ─── SECTION ───────────────────────────────────────────────── */
+    .section {
+      position: relative; z-index: 1;
+      padding: 80px 40px 100px;
+      max-width: 1300px; margin: 0 auto;
+    }
+
+    .section-label {
+      display: flex; align-items: center; gap: 12px;
+      font-size: .75rem; font-weight: 600;
+      color: var(--violet); letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1; height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      color: #fff; margin-bottom: 48px;
+    }
+
+    /* ─── GRID ──────────────────────────────────────────────────── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    /* ─── CARD ──────────────────────────────────────────────────── */
+    .game-card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .3s ease, border-color .3s, box-shadow .3s;
+    }
+    .game-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--purple);
+      box-shadow: 0 24px 60px #5b21b640;
+    }
+
+    .game-card.in-dev { opacity: .75; cursor: default; }
+    .game-card.in-dev:hover { transform: none; box-shadow: none; border-color: var(--border); }
+
+    .card-thumb {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover;
+      display: block;
+      filter: saturate(.8);
+      transition: filter .3s, transform .3s;
+    }
+    .game-card:hover .card-thumb {
+      filter: saturate(1.1);
+      transform: scale(1.03);
+    }
+
+    .card-thumb-wrap {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-thumb-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, var(--card));
+      pointer-events: none;
+    }
+
+    .card-body {
+      padding: 16px 20px 20px;
+    }
+
+    .card-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .badge {
+      font-size: .68rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 99px;
+      letter-spacing: .06em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .badge-online   { background: #05372622; color: var(--online);   border: 1px solid #065f4633; }
+    .badge-progress { background: #45290022; color: var(--progress); border: 1px solid #78350f33; }
+    .badge-dev      { background: #44090922; color: var(--dev);      border: 1px solid #7f1d1d33; }
+
+    .card-features {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 16px;
+    }
+    .feature-tag {
+      font-size: .72rem; font-weight: 500;
+      padding: 3px 10px; border-radius: 6px;
+      background: #1e0d3b; color: var(--muted);
+      border: 1px solid #2d1a5e;
+    }
+
+    .card-actions { display: flex; gap: 10px; }
+
+    .card-btn {
+      flex: 1; padding: 10px;
+      border-radius: 8px; font-size: .82rem; font-weight: 600;
+      text-align: center; text-decoration: none;
+      cursor: pointer; border: none;
+      transition: opacity .2s, transform .15s;
+    }
+    .card-btn:hover:not(:disabled) { opacity: .8; transform: scale(.98); }
+
+    .card-btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--violet));
+      color: #fff;
+    }
+    .card-btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .card-btn-outline:hover { border-color: var(--violet); color: var(--violet); }
+
+    .card-btn.disabled {
+      opacity: .35; cursor: not-allowed; pointer-events: none;
+    }
+
+    /* ─── MODAL ─────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: #07030fee;
+      backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%; max-width: 720px;
+      overflow: hidden;
+      animation: scaleIn .25s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-hero {
+      position: relative;
+    }
+    .modal-hero img {
+      width: 100%; max-height: 280px;
+      object-fit: cover; display: block;
+      filter: brightness(.6);
+    }
+    .modal-hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--card) 10%, transparent);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 24px;
+    }
+    .modal-hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.6rem;
+      color: #fff;
+    }
+
+    .modal-close {
+      position: absolute; top: 14px; right: 16px;
+      background: #07030faa; border: 1px solid var(--border);
+      color: var(--muted); cursor: pointer;
+      width: 34px; height: 34px; border-radius: 8px;
+      font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+      transition: color .2s, border-color .2s;
+    }
+    .modal-close:hover { color: #fff; border-color: var(--violet); }
+
+    .modal-body { padding: 24px; }
+
+    .modal-features-title {
+      font-size: .73rem; font-weight: 600;
+      color: var(--muted); letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .modal-features {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 24px;
+    }
+    .modal-feature-item {
+      font-size: .8rem; font-weight: 500;
+      padding: 5px 14px; border-radius: 8px;
+      background: #1e0d3b; color: var(--neon);
+      border: 1px solid #3b1a6e;
+    }
+    .modal-feature-item::before { content: '✦ '; font-size: .6rem; opacity: .6; }
+
+    .modal-code-wrap {
+      background: #050210;
+      border: 1px solid #2d1a5e;
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex; align-items: center; gap: 12px;
+      overflow: hidden;
+    }
+    .modal-code {
+      flex: 1;
+      font-family: 'DM Mono', 'Fira Code', monospace;
+      font-size: .82rem; color: #a78bfa;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+    .modal-copy-btn {
+      background: var(--purple); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 18px; font-size: .8rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: opacity .2s;
+    }
+    .modal-copy-btn:hover { opacity: .8; }
+    .modal-copy-btn.copied { background: #065f46; }
+
+    /* ─── FOOTER ────────────────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer .logo-f {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #c084fc, #7c3aed);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    footer p {
+      font-size: .8rem; color: var(--muted);
+    }
+
+    /* ─── ANIMATIONS ────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: .08s; }
+    .reveal-d2 { transition-delay: .16s; }
+    .reveal-d3 { transition-delay: .24s; }
+    .reveal-d4 { transition-delay: .32s; }
+    .reveal-d5 { transition-delay: .40s; }
+    .reveal-d6 { transition-delay: .48s; }
+
+    /* ─── MOBILE ────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .section { padding: 60px 20px 80px; }
+      .hero { padding: 100px 20px 60px; }
+      footer { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient glow blobs -->
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+  <div class="ambient ambient-3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">LYNX<span>HUB</span></div>
+    <div class="nav-links">
+      <a href="../site código/index.html">Home</a>
+      <a href="#games">Scripts</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">HUD Active &amp; Running</div>
+    <h1 class="hero-title">
+      <span class="line1">LYNX</span>
+      <span class="line2">SCRIPTS</span>
+    </h1>
+    <p class="hero-sub">Roblox scripts built to dominate. Pick a game and copy the loadstring.</p>
+    <div class="hero-cta">
+      <a href="#games" class="btn-primary">View Games</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- GAMES -->
+  <main class="section" id="games">
+    <div class="section-label reveal">Supported Games</div>
+    <h2 class="section-title reveal">Available Scripts</h2>
+
+    <div class="games-grid">
+
+      <!-- Card 1 -->
+      <div class="game-card reveal reveal-d1"
+           data-title="[FPS] Um Toque"
+           data-img="https://tr.rbxcdn.com/180DAY-90e95e7b086c305abc3f0e8079b28e54/768/432/Image/Webp/noFilter"
+           data-features="Silent Aim;Auto Headshot;ESP Box;ESP Skeleton;No Recoil"
+           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
+           data-status="online"
+           data-play="https://www.roblox.com/pt/games/90568084448279/One-Tap">
+        <div class="card-thumb-wrap">
+          <img class="card-thumb" src="https://tr.rbxcdn.com/180DAY-90e95e7b086c305abc3f0e8079b28e54/768/432/Image/Webp/noFilter" alt="[FPS] Um Toque" />
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-title">[FPS] Um Toque</span>
+            <span class="badge badge-online">Online</span>
+          </div>
+          <div class="card-features">
+            <span class="feature-tag">Silent Aim</span>
+            <span class="feature-tag">Auto Headshot</span>
+            <span class="feature-tag">ESP Box</span>
+            <span class="feature-tag">No Recoil</span>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn card-btn-primary open-modal-btn">View Script</button>
+            <a href="https://www.roblox.com/pt/games/90568084448279/One-Tap" target="_blank" class="card-btn card-btn-outline">Play</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="game-card reveal reveal-d2"
+           data-title="[FPS] Passeio"
+           data-img="https://tr.rbxcdn.com/180DAY-6520033018c6162771a61aac035963ef/768/432/Image/Webp/noFilter"
+           data-features="Aimbot;Triggerbot;ESP Distance;ESP Health;Speed Hack"
+           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
+           data-status="online"
+           data-play="https://www.roblox.com/pt/games/136801880565837/Flick">
+        <div class="card-thumb-wrap">
+          <img class="card-thumb" src="https://tr.rbxcdn.com/180DAY-6520033018c6162771a61aac035963ef/768/432/Image/Webp/noFilter" alt="[FPS] Passeio" />
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-title">[FPS] Passeio</span>
+            <span class="badge badge-online">Online</span>
+          </div>
+          <div class="card-features">
+            <span class="feature-tag">Aimbot</span>
+            <span class="feature-tag">Triggerbot</span>
+            <span class="feature-tag">ESP Distance</span>
+            <span class="feature-tag">Speed Hack</span>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn card-btn-primary open-modal-btn">View Script</button>
+            <a href="https://www.roblox.com/pt/games/136801880565837/Flick" target="_blank" class="card-btn card-btn-outline">Play</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="game-card reveal reveal-d3"
+           data-title="Arsenal"
+           data-img="https://tr.rbxcdn.com/180DAY-b6a5183f24ba3121346cf7e274da12ec/768/432/Image/Webp/noFilter"
+           data-features="Aimbot;FOV Circle;Smoothing;ESP Team Colors;Ally Checks"
+           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
+           data-status="online"
+           data-play="https://www.roblox.com/pt/games/286090429/Arsenal">
+        <div class="card-thumb-wrap">
+          <img class="card-thumb" src="https://tr.rbxcdn.com/180DAY-b6a5183f24ba3121346cf7e274da12ec/768/432/Image/Webp/noFilter" alt="Arsenal" />
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-title">Arsenal</span>
+            <span class="badge badge-online">Online</span>
+          </div>
+          <div class="card-features">
+            <span class="feature-tag">Aimbot</span>
+            <span class="feature-tag">FOV Circle</span>
+            <span class="feature-tag">Smoothing</span>
+            <span class="feature-tag">ESP Colors</span>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn card-btn-primary open-modal-btn">Get Script</button>
+            <a href="https://www.roblox.com/pt/games/286090429/Arsenal" target="_blank" class="card-btn card-btn-outline">Play</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 — Almost Ready -->
+      <div class="game-card in-dev reveal reveal-d4"
+           data-title="Distrito da Violência"
+           data-img="https://tr.rbxcdn.com/180DAY-ebde23d7fd4a7b83ba3bf6a3df91d131/512/512/Image/Webp/noFilter"
+           data-features="Generator ESP;Crate ESP;Window ESP;Custom Highlights;Repair Progress"
+           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
+           data-status="progress"
+           data-play="https://www.roblox.com/pt/games/93978595733734/Violence-District">
+        <div class="card-thumb-wrap">
+          <img class="card-thumb" src="https://tr.rbxcdn.com/180DAY-ebde23d7fd4a7b83ba3bf6a3df91d131/512/512/Image/Webp/noFilter" alt="Distrito da Violência" />
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-title">Distrito da Violência</span>
+            <span class="badge badge-progress">Coming Soon</span>
+          </div>
+          <div class="card-features">
+            <span class="feature-tag">Generator ESP</span>
+            <span class="feature-tag">Crate ESP</span>
+            <span class="feature-tag">Window ESP</span>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn card-btn-primary disabled">Coming Soon</button>
+            <a href="https://www.roblox.com/pt/games/93978595733734/Violence-District" target="_blank" class="card-btn card-btn-outline">View Game</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 — In Dev -->
+      <div class="game-card in-dev reveal reveal-d5"
+           data-title="[UPD] Bola da Morte"
+           data-img="https://tr.rbxcdn.com/180DAY-0ec094471a4413b54a2ed36a3fcf0c3e/768/432/Image/Webp/noFilter"
+           data-features="Auto Parry;Parry All;Kill Aura;God Mode;Speed"
+           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
+           data-status="dev"
+           data-play="https://www.roblox.com/pt/games/15002061926/Death-Ball">
+        <div class="card-thumb-wrap">
+          <img class="card-thumb" src="https://tr.rbxcdn.com/180DAY-0ec094471a4413b54a2ed36a3fcf0c3e/768/432/Image/Webp/noFilter" alt="[UPD] Bola da Morte" />
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-title">[UPD] Bola da Morte</span>
+            <span class="badge badge-dev">In Development</span>
+          </div>
+          <div class="card-features">
+            <span class="feature-tag">Auto Parry</span>
+            <span class="feature-tag">Kill Aura</span>
+            <span class="feature-tag">Speed</span>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn card-btn-primary disabled">In Dev</button>
+            <a href="https://www.roblox.com/pt/games/15002061926/Death-Ball" target="_blank" class="card-btn card-btn-outline">View Game</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 — In Dev -->
+      <div class="game-card in-dev reveal reveal-d6"
+           data-title="[DUALES] Faca VS Arma"
+           data-img="https://tr.rbxcdn.com/180DAY-019e3b22ec20f22ce89bcdbd2724884c/768/432/Image/Webp/noFilter"
+           data-features="Aimbot;Silent Aim;ESP;Auto Farm;Kill Aura"
+           data-script='loadstring(game:HttpGet("https://pastebin.com/raw/KnFxXXvK"))()'
+           data-status="dev"
+           data-play="https://www.roblox.com/pt/games/120700541929930/Knife-VS-Gun">
+        <div class="card-thumb-wrap">
+          <img class="card-thumb" src="https://tr.rbxcdn.com/180DAY-019e3b22ec20f22ce89bcdbd2724884c/768/432/Image/Webp/noFilter" alt="[DUALES] Faca VS Arma" />
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-title">[DUALES] Faca VS Arma</span>
+            <span class="badge badge-dev">In Development</span>
+          </div>
+          <div class="card-features">
+            <span class="feature-tag">Aimbot</span>
+            <span class="feature-tag">Silent Aim</span>
+            <span class="feature-tag">Kill Aura</span>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn card-btn-primary disabled">In Dev</button>
+            <a href="https://www.roblox.com/pt/games/120700541929930/Knife-VS-Gun" target="_blank" class="card-btn card-btn-outline">View Game</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="logo-f">LYNXHUB</span>
+    <p>&copy; 2026 LynX Scripts. All rights reserved.</p>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-hero">
+        <img id="modal-img" src="" alt="" />
+        <div class="modal-hero-overlay">
+          <h2 class="modal-hero-title" id="modal-title"></h2>
+        </div>
+        <button class="modal-close" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-features-title">Features</p>
+        <div class="modal-features" id="modal-features"></div>
+        <div class="modal-code-wrap">
+          <code class="modal-code" id="modal-code"></code>
+          <button class="modal-copy-btn" id="modal-copy">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── MODAL ──────────────────────────────────────────────────
+    const overlay   = document.getElementById('modal');
+    const modalImg  = document.getElementById('modal-img');
+    const modalTitle= document.getElementById('modal-title');
+    const modalFeat = document.getElementById('modal-features');
+    const modalCode = document.getElementById('modal-code');
+    const modalCopy = document.getElementById('modal-copy');
+    const modalClose= document.getElementById('modal-close');
+
+    function openModal(card) {
+      const d = card.dataset;
+      modalImg.src       = d.img;
+      modalTitle.innerText = d.title;
+      modalCode.innerText  = d.script;
+      modalFeat.innerHTML  = '';
+      d.features.split(';').forEach(f => {
+        const el = document.createElement('span');
+        el.className = 'modal-feature-item';
+        el.innerText = f;
+        modalFeat.appendChild(el);
+      });
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+    document.querySelectorAll('.open-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.closest('.game-card')));
+    });
+
+    // ── COPY ──────────────────────────────────────────────────
+    modalCopy.addEventListener('click', () => {
+      navigator.clipboard.writeText(modalCode.innerText).then(() => {
+        modalCopy.innerText = 'Copied!';
+        modalCopy.classList.add('copied');
+        setTimeout(() => {
+          modalCopy.innerText = 'Copy';
+          modalCopy.classList.remove('copied');
+        }, 2000);
+      });
+    });
+
+    // ── REVEAL ON SCROLL ──────────────────────────────────────
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
